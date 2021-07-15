@@ -1,0 +1,31 @@
+public class LimitOpportunity {
+    public static void opplimit(List<Opportunity> oppList){
+        Set<id> ids = new Set<Id>();
+        Map<Id, List<Opportunity>> accIdVsopprecordMap = new Map<Id, List<Opportunity>>();
+        for(Opportunity op : oppList ){
+            if(op.AccountId != null){
+                if(!accIdVsopprecordMap.containskey(op.AccountId)){
+                    accIdVsopprecordMap.put(op.AccountId, new List<Opportunity>());
+                }
+                accIdVsopprecordMap.get(op.AccountId).add(op);
+                ids.add(op.AccountId);
+            }
+        }
+        if(ids != null && ids.size() > 0){
+            List<Account> accList =[SELECT Id,Name,(SELECT Id FROM Opportunities WHERE StageName='Closed Won')FROM Account WHERE Id =: ids];
+            if(accList != null && accList.size() > 0){
+                for(Account a : accList ){
+                    if(a.Opportunities.size() >= 5){
+                        for(Opportunity oppObjTest : accIdVsopprecordMap.get(a.Id)){
+                            if(oppObjTest.StageName == 'Closed Won'){
+                                oppObjTest.addError('Can Not Insert More then 5 Closed Won records');
+                            }					
+                            
+                        }
+                    }
+                }
+            }
+            
+        }
+    }
+}
